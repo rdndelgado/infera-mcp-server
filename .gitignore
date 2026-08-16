@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Internal docs — PRDs and Claude Code project instructions, not for repo distribution
+PRD_V2.md
+docs/PRD_v1_ecommerce_stale.md
+CLAUDE.md
+**/CLAUDE.md

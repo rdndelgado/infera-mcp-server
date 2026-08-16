@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: infera_warehouse_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-warehouse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warehouse}
+      POSTGRES_DB: ${POSTGRES_DB:-saas_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mounted read-only into Postgres's init dir: files here run once,
+      # in filename order, only on first container start against an empty
+      # volume. dimensions.sql runs before facts.sql alphabetically.
+      - ./warehouse/schema:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-warehouse} -d ${POSTGRES_DB:-saas_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mcp:
+    build: .
+    container_name: infera_mcp_server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # Overrides .env's POSTGRES_HOST=localhost — inside the compose network
+      # containers reach each other by service name, not localhost. Only
+      # matters when SUPABASE_DB_URL is unset (local Postgres fallback);
+      # once real Supabase creds are in .env, DATABASE_URL uses those instead
+      # and this override is simply unused.
+      POSTGRES_HOST: postgres
+    ports:
+      - "${MCP_PORT:-8000}:8000"
+
+volumes:
+  pgdata:
