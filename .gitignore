@@ -222,3 +222,6 @@ PRD_V2.md
 docs/PRD_v1_ecommerce_stale.md
 CLAUDE.md
 **/CLAUDE.md
+
+# Local-only bootstrap script — seeds a real static MCP client key hash, never pushed
+warehouse/scripts/seed_mcp_client_local.py

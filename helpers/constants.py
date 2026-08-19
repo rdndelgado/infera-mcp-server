@@ -12,6 +12,9 @@ SUPABASE_DB_URL = config("SUPABASE_DB_URL", default="")
 
 # --- MCP ---
 MCP_API_KEY = config("MCP_API_KEY", default="")
+# This server's own public URL — required by SupabaseProvider (OAuth resource/
+# redirect metadata). Update to the real Vercel URL once deployed.
+MCP_BASE_URL = config("MCP_BASE_URL", default="http://localhost:8321")
 
 # --- Application ---
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
@@ -30,6 +33,10 @@ DATABASE_URL = SUPABASE_DB_URL or (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}"
     f"@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 )
+
+# Which backend DATABASE_URL actually resolved to — used only for logging,
+# never exposed in tool output.
+DB_SOURCE = "supabase" if SUPABASE_DB_URL else "local postgres"
 
 # --- Non-secret application constants ---
 DEFAULT_TOP_CUSTOMERS = 10

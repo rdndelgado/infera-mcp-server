@@ -16,7 +16,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 SCHEMA_DIR = Path(__file__).resolve().parent.parent / "schema"
-SCHEMA_FILES = ["dimensions.sql", "facts.sql"]  # order matters: facts FK-reference dimensions
+SCHEMA_FILES = ["dimensions.sql", "facts.sql", "observability.sql"]  # order matters: facts FK-reference dimensions
 
 
 def main() -> None:

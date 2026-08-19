@@ -23,13 +23,30 @@ class RedactingFilter(logging.Filter):
         return True
 
 
+_LEVEL_COLORS = {
+    logging.DEBUG: "\033[36m",     # cyan
+    logging.INFO: "\033[32m",      # green
+    logging.WARNING: "\033[33m",   # yellow
+    logging.ERROR: "\033[31m",     # red
+    logging.CRITICAL: "\033[41m",  # red bg
+}
+_RESET = "\033[0m"
+_DIM = "\033[2m"
+
+
+class ColorFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        color = _LEVEL_COLORS.get(record.levelno, "")
+        timestamp = self.formatTime(record)
+        return f"{_DIM}{timestamp}{_RESET} {color}{record.levelname:<8}{_RESET} [{record.name}] {record.getMessage()}"
+
+
 def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     if not logger.handlers:
         handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
-        )
+        formatter = ColorFormatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
+        handler.setFormatter(formatter)
         handler.addFilter(RedactingFilter())
         logger.addHandler(handler)
         logger.setLevel(LOG_LEVEL)

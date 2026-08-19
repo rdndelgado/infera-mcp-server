@@ -8,6 +8,7 @@ whitelist dict, never interpolated directly from caller input.
 from datetime import date
 
 from psycopg.rows import dict_row
+from psycopg.types.json import Json
 
 _DIMENSION_MAP = {
     "customer": ("dim_customer", "customer_key", "customer_name"),
@@ -152,6 +153,48 @@ def get_revenue_trend(conn, start_date: date, end_date: date, interval: str) -> 
             (interval, start_date, end_date),
         )
         return cur.fetchall()
+
+
+def upsert_mcp_client(
+    conn,
+    client_id: str,
+    auth_type: str,
+    client_name: str | None,
+    email: str | None,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO mcp_clients (client_id, auth_type, client_name, email) "
+            "VALUES (%s, %s, %s, %s) "
+            "ON CONFLICT (client_id) DO UPDATE SET last_seen_at = now()",
+            (client_id, auth_type, client_name, email),
+        )
+
+
+def log_mcp_call(
+    conn,
+    client_id: str,
+    tool_name: str,
+    arguments: dict | None,
+    duration_ms: int,
+    success: bool,
+    error_message: str | None,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO mcp_calls (client_id, tool_name, arguments, duration_ms, success, error_message) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (client_id, tool_name, Json(arguments), duration_ms, success, error_message),
+        )
+
+
+def get_mcp_client_by_access_token(conn, token_hash: str) -> tuple | None:
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT client_id, client_name FROM mcp_clients WHERE access_token = %s AND is_active = true",
+            (token_hash,),
+        )
+        return cur.fetchone()
 
 
 def get_revenue_breakdown(conn, period_end: date, dimension: str) -> list[dict]:
