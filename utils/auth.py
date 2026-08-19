@@ -78,7 +78,7 @@ def get_auth_provider() -> AuthProvider | None:
             algorithm="ES256",
             audience="authenticated",
         )
-        logger.info(f"Auth: Supabase OAuth + static keys (project={SUPABASE_URL})")
+        logger.info("Auth: Supabase OAuth + static keys")
         return SupabaseProvider(
             project_url=SUPABASE_URL,
             base_url=MCP_BASE_URL,
