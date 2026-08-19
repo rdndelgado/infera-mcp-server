@@ -18,7 +18,6 @@ MCP_BASE_URL = config("MCP_BASE_URL", default="http://localhost:8321")
 
 # --- Application ---
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
-ENVIRONMENT = config("ENVIRONMENT", default="development")
 
 # --- Local warehouse Postgres (docker-compose) ---
 # Offline dev fallback only. If SUPABASE_DB_URL is set, DATABASE_URL below

@@ -26,7 +26,7 @@ from fastmcp.server.auth.providers.supabase import SupabaseProvider
 
 from db.warehouse import queries
 from db.warehouse.client import get_connection
-from helpers.constants import ENVIRONMENT, MCP_API_KEY, MCP_BASE_URL, SUPABASE_URL
+from helpers.constants import MCP_API_KEY, MCP_BASE_URL, SUPABASE_URL
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -88,7 +88,5 @@ def get_auth_provider() -> AuthProvider | None:
     if MCP_API_KEY:
         logger.info("Auth: static keys only (SUPABASE_URL not set)")
         return DBBackedStaticVerifier()
-    if ENVIRONMENT == "production":
-        raise RuntimeError("SUPABASE_URL or MCP_API_KEY is required when ENVIRONMENT=production")
-    logger.warning("No auth configured — server running WITHOUT auth (dev only).")
+    logger.warning("No auth configured — server running WITHOUT auth.")
     return None
