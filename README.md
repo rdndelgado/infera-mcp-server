@@ -1,6 +1,6 @@
 # infera-mcp-server
 
-Lets an AI assistant like Claude or ChatGPT access your company's internal database and give you insights — with controlled access, only to what it needs.
+Lets an AI assistant like Claude or ChatGPT access your company's internal database and give you insights — with controlled access, only to what it needs. Ask it a question, and it can pull the numbers, then build a chart or a written analysis out of them itself.
 
 ## Architecture
 
@@ -12,6 +12,16 @@ Lets an AI assistant like Claude or ChatGPT access your company's internal datab
 - **Subscriptions & plans** — what each customer is subscribed to, and every upgrade, downgrade, or cancellation along the way.
 - **Sales deals** — every closed deal, won or lost.
 - **Sales pipeline** — every open opportunity still being worked.
+
+## Connecting Claude
+
+The server is live at:
+
+```
+https://infera-mcp-server.vercel.app
+```
+
+**Claude.ai / Claude Desktop** — Settings → Connectors → Add custom connector → paste the URL above → Add. Claude redirects you to log in or sign up (this connects through [infera-ui](https://infera-ui.vercel.app), the account/consent screen), then asks you to approve access. Once approved, the connector's ready to use.
 
 ## Available MCP tools
 
@@ -29,39 +39,22 @@ Lets an AI assistant like Claude or ChatGPT access your company's internal datab
 | `get_sales_metrics` | Summarizes closed deals — how many were won or lost, and how big they were on average. |
 | `get_sales_pipeline` | Shows what deals are still open and roughly how much they could be worth. |
 
-## Sample analytical questions
+## Try it with Claude
 
-- What's our monthly recurring revenue right now, and is our cash flow trending up or down?
-- Who are our top customers, and which ones are we at risk of losing?
-- How much revenue is sitting in open deals, and how likely are they to close?
-- Are we losing customers faster than we're signing new ones this month?
-- What's our sales win rate, and how big are deals closing on average?
+Paste these into Claude (connected to this MCP server) to pull real data and turn it into a chart or a written insight. Claude calls the tools above, then builds the visual or analysis itself — the server hands back raw numbers, not images.
 
-## Potential integrations
+**Revenue & trends**
+- "Show me a monthly MRR trend chart for all of 2024, and call out any months where growth stalled."
+- "Create a trend visual for our sales performance in Q4 2024 — closed revenue, win rate, and average deal size."
 
-Not yet built — natural next steps beyond read-only reporting:
+**Customers**
+- "Who are our top 10 customers by revenue, and which ones look at risk of churning?"
+- "How many customers did we gain and lose this quarter, and what's our net growth rate?"
 
-- **Calendar** — read schedules, create meeting events (book a call with an at-risk customer, schedule the board update).
-- **Email** — read inbox, send new emails, reply to threads (follow up a stalled deal, send the monthly digest).
-- **Slack** — same as email: read channels/DMs, send messages, reply in-thread.
-- **CRM** — another database, but for customer/deal records (HubSpot/Salesforce) — read and write, alongside the analytical warehouse.
+**Pipeline & sales**
+- "How much revenue is sitting in our open pipeline right now, and how likely is it to close?"
+- "What's our win rate this quarter, and how does it compare to last quarter?"
 
-Once wired in, this unlocks questions like: "How many leads do we have, how many have we contacted, how many replied, and what platform is each one in (email vs. Slack vs. CRM)?"
-
-## Setup (Docker)
-
-Run MCP Server and Postgres Database Engine locally using Docker
-
-```bash
-cp .env.example .env
-docker compose up -d --build
-docker compose run --rm mcp python -m warehouse.seed.load
-```
-
-Once the container's running, connect it to Claude Code by typing this on terminal:
-
-```bash
-claude mcp add infera --transport http http://localhost:8000 --header "Authorization: Bearer <MCP_API_KEY>"
-```
-
-Use the same `MCP_API_KEY` value set in `.env`.
+**Multi-tool insight** — Claude pulls from several tools and compiles the results itself into one answer:
+- "Give me a full Q4 2024 business review — revenue growth, churn, and sales performance — summarized like a one-page report for my board."
+- "Compare Q3 vs Q4 2024 across revenue, customers, and sales, and tell me if we're accelerating or slowing down."
