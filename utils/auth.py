@@ -40,6 +40,7 @@ class DBBackedStaticVerifier(TokenVerifier):
         token_hash = hashlib.sha256(token.encode()).hexdigest()
         row = await asyncio.to_thread(self._lookup, token_hash)
         if row is None:
+            logger.warning(f"Static key rejected: no match for hash {token_hash[:12]}...")
             return None
         client_id, client_name = row
         return AccessToken(
@@ -65,9 +66,16 @@ class CompositeVerifier(TokenVerifier):
         self._static = static_verifier
 
     async def verify_token(self, token: str) -> AccessToken | None:
-        if token.count(".") == 2:
-            return await self._jwt.verify_token(token)
-        return await self._static.verify_token(token)
+        dots = token.count(".")
+        branch = "jwt" if dots == 2 else "static"
+        logger.info(f"CompositeVerifier: routing token (len={len(token)}, dots={dots}) to {branch}")
+        result = (
+            await self._jwt.verify_token(token)
+            if branch == "jwt"
+            else await self._static.verify_token(token)
+        )
+        logger.info(f"CompositeVerifier: {branch} branch result: {'accepted' if result else 'rejected'}")
+        return result
 
 
 def get_auth_provider() -> AuthProvider | None:
